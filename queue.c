@@ -12,22 +12,23 @@
 
 
 /* define macro */
-#define q_insert_macro(type, func)                                \
-    bool q_insert_##type(struct list_head *head, char *s)         \
-    {                                                             \
-        if (!head)                                                \
-            return false;                                         \
-        element_t *new_node = malloc(1 * sizeof(*new_node));      \
-        if (!new_node)                                            \
-            return false;                                         \
-        new_node->value = malloc((strlen(s) + 1) * sizeof(char)); \
-        if (!new_node->value) {                                   \
-            q_release_element(new_node);                          \
-            return false;                                         \
-        }                                                         \
-        memcpy(new_node->value, s, strlen(s) + 1);                \
-        func(&new_node->list, head);                              \
-        return true;                                              \
+#define q_insert_macro(type, func)                           \
+    bool q_insert_##type(struct list_head *head, char *s)    \
+    {                                                        \
+        if (!head)                                           \
+            return false;                                    \
+        element_t *new_node = malloc(1 * sizeof(*new_node)); \
+        if (!new_node)                                       \
+            return false;                                    \
+        size_t size = strlen(s) + 1;                         \
+        new_node->value = malloc(size * sizeof(char));       \
+        if (!new_node->value) {                              \
+            free(new_node);                                  \
+            return false;                                    \
+        }                                                    \
+        strncpy(new_node->value, s, size);                   \
+        func(&new_node->list, head);                         \
+        return true;                                         \
     }
 
 
@@ -40,7 +41,7 @@
         element_t *del = func(head, element_t, list);            \
         list_del(&del->list);                                    \
         if (sp != NULL) {                                        \
-            memcpy(sp, del->value, bufsize - 1);                 \
+            strncpy(sp, del->value, bufsize - 1);                \
             sp[bufsize - 1] = '\0';                              \
         }                                                        \
         return del;                                              \
