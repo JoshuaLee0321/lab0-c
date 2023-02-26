@@ -40,7 +40,7 @@
         element_t *del = func(head, element_t, list);            \
         list_del(&del->list);                                    \
         if (sp != NULL) {                                        \
-            strncpy(sp, del->value, bufsize - 1);                \
+            memcpy(sp, del->value, bufsize - 1);                 \
             sp[bufsize - 1] = '\0';                              \
         }                                                        \
         return del;                                              \
@@ -116,19 +116,26 @@ bool q_delete_mid(struct list_head *head)
 bool q_delete_dup(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
-    // O(N) time and O(1) space
-    if (!head || list_empty(head) || list_is_singular(head))
+    if (!head || list_is_singular(head))
         return false;
-
-    struct list_head *temp = head;
-    while (temp->next != (head)) {
-        element_t *prev = list_entry(temp, element_t, list);
-        element_t *next = list_entry(temp->next, element_t, list);
-        if (strcmp(prev->value, next->value) == 0) {
-            list_del_init(&next->list);
-            q_release_element(next);
-        } else {
-            temp = temp->next;
+    struct list_head *it, *safe = NULL;
+    bool not_finished = false;
+    list_for_each_safe (it, safe, head) {
+        element_t *prev = list_entry(it, element_t, list);
+        element_t *cur = list_entry(safe, element_t, list);
+        if (!strcmp(prev->value, cur->value)) {
+            not_finished = true;
+            list_del(it);
+            q_release_element(prev);
+            if (safe->next == (head)) {
+                list_del(safe);
+                q_release_element(cur);
+                break;
+            }
+        } else if (not_finished) {
+            not_finished = false;
+            list_del(it);
+            q_release_element(prev);
         }
     }
 
