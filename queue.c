@@ -35,7 +35,7 @@
     element_t *q_remove_##type(struct list_head *head, char *sp, \
                                size_t bufsize)                   \
     {                                                            \
-        if (!head)                                               \
+        if (!head || list_empty(head))                           \
             return NULL;                                         \
         element_t *del = func(head, element_t, list);            \
         list_del(&del->list);                                    \
@@ -84,7 +84,7 @@ q_remove_macro(tail, list_last_entry);
 /* Return number of elements in queue */
 int q_size(struct list_head *head)
 {
-    if (!head)
+    if (!head || list_empty(head))
         return 0;
     int len = 0;
     struct list_head *li;
@@ -98,6 +98,7 @@ int q_size(struct list_head *head)
 bool q_delete_mid(struct list_head *head)
 {
     // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
+    // if (!head || list_empty(head))
     if (!head || list_empty(head))
         return false;
     struct list_head *single_p, *double_p;
@@ -116,7 +117,8 @@ bool q_delete_mid(struct list_head *head)
 bool q_delete_dup(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
-    if (!head || list_is_singular(head))
+    // if (!head || list_empty(head) || list_is_singular(head))
+    if (!head)
         return false;
     struct list_head *it, *safe = NULL;
     bool not_finished = false;
@@ -138,14 +140,14 @@ bool q_delete_dup(struct list_head *head)
             q_release_element(prev);
         }
     }
-
     return true;
 }
 
 /* Swap every two adjacent nodes */
 void q_swap(struct list_head *head)
 {
-    if (!head || list_empty(head) || head->next->next == head)
+    // if (!head || list_empty(head) || head->next->next == head)
+    if (!head || list_empty(head))
         return;
     struct list_head *it = head->next;
 
@@ -159,7 +161,8 @@ void q_swap(struct list_head *head)
 /* Reverse elements in queue */
 void q_reverse(struct list_head *head)
 {
-    if (!head || list_empty(head) || list_is_singular(head))
+    // if (!head || list_empty(head) || list_is_singular(head))
+    if (!head || list_empty(head))
         return;
     struct list_head *it, *safe = NULL;
 
@@ -172,7 +175,8 @@ void q_reverse(struct list_head *head)
 /* Reverse the nodes of the list k at a time */
 void q_reverseK(struct list_head *head, int k)
 {
-    if (!head || list_empty(head) || list_is_singular(head) || k < 1)
+    // if (!head || list_empty(head) || list_is_singular(head) || k < 1)
+    if (!head || list_empty(head))
         return;
     int cnt = 0;
     struct list_head *cur, *tmp = NULL;
@@ -232,6 +236,7 @@ struct list_head *mergesort(struct list_head *head)
 /* Sort elements of queue in ascending order */
 void q_sort(struct list_head *head)
 {
+    // if (!head || list_empty(head))
     if (!head || list_empty(head))
         return;
     head->prev->next = NULL;
@@ -249,7 +254,8 @@ void q_sort(struct list_head *head)
  * the right side of it */
 int q_descend(struct list_head *head)
 {
-    if (!head || list_empty(head) || list_is_singular(head))
+    // if (!head || list_empty(head) || list_is_singular(head))
+    if (!head || list_empty(head))
         return 0;
 
     struct list_head *indirect = (head->prev);
